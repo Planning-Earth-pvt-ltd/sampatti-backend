@@ -8,10 +8,6 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const serviceSID = process.env.TWILIO_SERVICE_SID;
 
 
-if (!serviceSID) {
-  throw new Error("TWILIO_SERVICE_SID is not defined in environment variables.");
-}
-
 const client = twilio(accountSID,authToken);
 
 
