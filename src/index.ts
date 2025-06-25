@@ -1,10 +1,17 @@
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import express, {Request,Response} from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
 
+// dotenv.config();
+
+console.log(
+  process.env.TWILIO_SERVICE_SID,
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 const app = express();
 
@@ -12,18 +19,16 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: "*" }));
 
-
-app.get("/", (req:Request,res:Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("Backend working");
 });
 
-
 // Middleware
-app.use("/api/v1/user",userRoute);
+app.use("/api/v1/user", userRoute);
 
 // Database Connection
- prisma.$connect();
- console.log("Database Connected");
+prisma.$connect();
+console.log("Database Connected");
 
 const PORT = process.env.PORT;
 
