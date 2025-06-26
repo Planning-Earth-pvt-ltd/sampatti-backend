@@ -25,12 +25,33 @@ enum KYCStatus {
 model User {
   id String @id @default(cuid()) @map("userId")
 
-  fullName          String
-  phoneNumber       String   @unique
-  email         String?    @unique
+  fullName      String
+  phoneNumber   String    @unique
+  email         String?   @unique
   kycStatus     KYCStatus @default(PENDING)
   isKycVerified Boolean   @default(false)
-  createdBy     String?
+  createdBy     String    @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  Token         Token[]
+}
+
+// TokenSchema 
+
+model Token {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  // Relation to User model
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  //Indexes for queries
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("user_tokens")
 }
