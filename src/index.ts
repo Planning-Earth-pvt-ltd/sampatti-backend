@@ -7,12 +7,6 @@ import prisma from "./prisma";
 
 // dotenv.config();
 
-console.log(
-  process.env.TWILIO_SERVICE_SID,
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
-
 const app = express();
 
 app.use(express.json());
@@ -26,12 +20,24 @@ app.get("/", (req: Request, res: Response) => {
 // Middleware
 app.use("/api/v1/user", userRoute);
 
-// Database Connection
-prisma.$connect();
-console.log("Database Connected");
+// Server and database starting
+async function startServer(): Promise<void>  {
+    try {
+      const PORT = process.env.PORT;
 
-const PORT = process.env.PORT;
+   await prisma.$connect();
+   console.log("Database Connected");
 
-app.listen(PORT, () => {
+   app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
+
+  } catch (error) {
+    console.log("error");
+  }
+};
+
+startServer();
+
+
+
