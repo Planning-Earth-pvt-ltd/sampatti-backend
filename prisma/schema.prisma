@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,18 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// KYC Enum
 enum KYCStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
-// User Schema
+enum PropertyType {
+  Residential
+  Commercial
+  Industrial
+  Land
+}
+
+enum PropertyStatus {
+  Active
+  Listed
+  Sold
+}
 
 model User {
-  id String @id @default(cuid()) @map("userId")
-
+  id            String    @id @default(cuid()) @map("userId")  //p_key
   fullName      String
   phoneNumber   String    @unique
   email         String?   @unique
@@ -33,10 +36,13 @@ model User {
   createdBy     String    @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  T_id                                             //f_key
+  
+  
   Token         Token[]
-}
 
-// TokenSchema 
+  @@map("users")
+}
 
 model Token {
   id        String   @id @default(cuid())
@@ -44,14 +50,48 @@ model Token {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
-
-  // Relation to User model
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  //Indexes for queries
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
   @@map("user_tokens")
 }
+
+model Property {
+  p_id              String         @id @default(cuid()) @map("propertyId")  p_key
+  title             String
+  description       String
+  address           String
+  city              String
+  state             String
+  propertyType      PropertyType
+  status            PropertyStatus
+  currentValuation  Float
+  totalAreaSqft     Float
+  PricePerSqFt      Float
+  TotalTokens  Float
+  ownerUserId       String           //f_key
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  T_id              String           //p_key
+  PricePerSqFt      Number
+  SqFtAreaPerToken
+  PricePerToken     Number
+  Token
+  @@index([ownerUserId])
+  @@map("properties")
+}
+
+
+currentValuation/totalAreaSqft=PricePerSqFt
+totalAreaSqft/TotalTokens=SqFtAreaPerToken
+SqFtAreaPerToken*PricePerSqFt=PricePerToken
+
+
+1.currentValuation
+2.totalAreaSqft
+3.PricePerSqFt
+4.no.OfTokens
+5.SqFtAreaPerToken
+6.PricePerToken

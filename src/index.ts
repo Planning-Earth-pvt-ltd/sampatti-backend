@@ -4,6 +4,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
+import propertyRoutes from './routes/propertyRoutes';
 
 // dotenv.config();
 
@@ -25,6 +26,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Middleware
 app.use("/api/v1/user", userRoute);
+app.use('/api', propertyRoutes);
 
 // Database Connection
 prisma.$connect();
