@@ -1,11 +1,12 @@
+datasource db {
+  provider = "postgresql" // or your database provider (e.g., mysql)
+  url      = env("DATABASE_URL") // Ensure this is set in your `.env` file
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
 
 enum KYCStatus {
   PENDING
@@ -13,21 +14,9 @@ enum KYCStatus {
   REJECTED
 }
 
-enum PropertyType {
-  Residential
-  Commercial
-  Industrial
-  Land
-}
-
-enum PropertyStatus {
-  Active
-  Listed
-  Sold
-}
 
 model User {
-  id            String    @id @default(cuid()) @map("userId")  //p_key
+  id            String    @id @default(cuid()) @map("userId")
   fullName      String
   phoneNumber   String    @unique
   email         String?   @unique
@@ -36,9 +25,6 @@ model User {
   createdBy     String    @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  T_id                                             //f_key
-  
-  
   Token         Token[]
 
   @@map("users")
@@ -59,39 +45,36 @@ model Token {
 }
 
 model Property {
-  p_id              String         @id @default(cuid()) @map("propertyId")  p_key
+  id                String         @id @default(cuid())
   title             String
   description       String
   address           String
   city              String
   state             String
   propertyType      PropertyType
-  status            PropertyStatus
-  currentValuation  Float
   totalAreaSqft     Float
+  TotalTokens       Int       
+  currentValuation  Float
   PricePerSqFt      Float
-  TotalTokens  Float
-  ownerUserId       String           //f_key
+  SqFtAreaPerToken  Float
+  PricePerToken     Float
+  status            PropertyStatus
+  ownerUserId       String
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-  T_id              String           //p_key
-  PricePerSqFt      Number
-  SqFtAreaPerToken
-  PricePerToken     Number
-  Token
-  @@index([ownerUserId])
-  @@map("properties")
+}
+
+enum PropertyType {
+  Residential
+  Commercial
+  Industrial
+  Land
+}
+
+enum PropertyStatus {
+  Active
+  Listed
+  Sold
 }
 
 
-currentValuation/totalAreaSqft=PricePerSqFt
-totalAreaSqft/TotalTokens=SqFtAreaPerToken
-SqFtAreaPerToken*PricePerSqFt=PricePerToken
-
-
-1.currentValuation
-2.totalAreaSqft
-3.PricePerSqFt
-4.no.OfTokens
-5.SqFtAreaPerToken
-6.PricePerToken
