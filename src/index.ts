@@ -20,7 +20,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Middleware
 app.use("/api/v1/user", userRoute);
-app.use('/api', propertyRoutes);
+app.use('/api/v1/property', propertyRoutes);
 
 // Server and database starting
 async function startServer(): Promise<void>  {
