@@ -1,30 +1,22 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+datasource db {
+  provider = "postgresql" // or your database provider (e.g., mysql)
+  url      = env("DATABASE_URL") // Ensure this is set in your `.env` file
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
 
-// KYC Enum
 enum KYCStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
-// User Schema
 
 model User {
-  id String @id @default(cuid()) @map("userId")
-
+  id            String    @id @default(cuid()) @map("userId")
   fullName      String
   phoneNumber   String    @unique
   email         String?   @unique
@@ -34,9 +26,9 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   Token         Token[]
-}
 
-// TokenSchema 
+  @@map("users")
+}
 
 model Token {
   id        String   @id @default(cuid())
@@ -44,14 +36,45 @@ model Token {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
-
-  // Relation to User model
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  //Indexes for queries
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
   @@map("user_tokens")
 }
+
+model Property {
+  id                String         @id @default(cuid())
+  title             String
+  description       String
+  address           String
+  city              String
+  state             String
+  propertyType      PropertyType
+  totalAreaSqft     Float
+  TotalTokens       Int       
+  currentValuation  Float
+  PricePerSqFt      Float
+  SqFtAreaPerToken  Float
+  PricePerToken     Float
+  status            PropertyStatus
+  ownerUserId       String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+enum PropertyType {
+  Residential
+  Commercial
+  Industrial
+  Land
+}
+
+enum PropertyStatus {
+  Active
+  Listed
+  Sold
+}
+
+
