@@ -7,13 +7,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 enum KYCStatus {
   PENDING
   APPROVED
   REJECTED
 }
-
 
 model User {
   id            String    @id @default(cuid()) @map("userId")
@@ -45,23 +43,23 @@ model Token {
 }
 
 model Property {
-  id                String         @id @default(cuid())
-  title             String
-  description       String
-  address           String
-  city              String
-  state             String
-  propertyType      PropertyType
-  totalAreaSqft     Float
-  TotalTokens       Int       
-  currentValuation  Float
-  PricePerSqFt      Float
-  SqFtAreaPerToken  Float
-  PricePerToken     Float
-  status            PropertyStatus
-  ownerUserId       String
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  title            String
+  description      String
+  address          String
+  city             String
+  state            String
+  propertyType     PropertyType
+  totalAreaSqft    Float
+  TotalTokens      Int
+  currentValuation Float
+  PricePerSqFt     Float
+  SqFtAreaPerToken Float
+  PricePerToken    Float
+  status           PropertyStatus
+  ownerUserId      String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 enum PropertyType {
@@ -76,5 +74,3 @@ enum PropertyStatus {
   Listed
   Sold
 }
-
-
