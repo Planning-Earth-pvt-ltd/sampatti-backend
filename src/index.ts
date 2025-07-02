@@ -25,7 +25,7 @@ app.use('/api/v1/property', propertyRoutes);
 // Server and database starting
 async function startServer(): Promise<void>  {
     try {
-      const PORT = process.env.PORT;
+      const PORT = process.env.PORT || 5000;
 
    await prisma.$connect();
    console.log("Database Connected");
