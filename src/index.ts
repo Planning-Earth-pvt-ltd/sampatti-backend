@@ -4,11 +4,20 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
-import propertyRoutes from './routes/propertyRoutes';
+//import propertyRoutes from './routes/propertyRoutes';
 
 // dotenv.config();
 
 const app = express();
+
+console.log("DB_URL",process.env.DATABASE_URL);
+console.log("DB_URL",process.env.DIRECT_URL);
+console.log("Twilio SID",process.env.TWILIO_ACCOUNT_SID);
+console.log("Twilio SID",process.env.TWILIO_SERVICE_SID);
+console.log("Twilio SID",process.env.TWILIO_AUTH_TOKEN);
+
+
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -20,7 +29,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Middleware
 app.use("/api/v1/user", userRoute);
-app.use('/api/v1/property', propertyRoutes);
+//app.use('/api/v1/property', propertyRoutes);
 
 // Server and database starting
 async function startServer(): Promise<void>  {
@@ -35,7 +44,7 @@ async function startServer(): Promise<void>  {
 });
 
   } catch (error) {
-    console.log("error");
+    console.log("error" , error);
   }
 };
 
