@@ -10,6 +10,15 @@ import propertyRoutes from './routes/propertyRoutes';
 
 const app = express();
 
+console.log("DB_URL",process.env.DATABASE_URL);
+console.log("DB_URL",process.env.DIRECT_URL);
+console.log("Twilio SID",process.env.TWILIO_ACCOUNT_SID);
+console.log("Twilio SID",process.env.TWILIO_SERVICE_SID);
+console.log("Twilio SID",process.env.TWILIO_AUTH_TOKEN);
+
+
+
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: "*" }));
@@ -35,7 +44,7 @@ async function startServer(): Promise<void>  {
 });
 
   } catch (error) {
-    console.log("error");
+    console.log("error" , error);
   }
 };
 
