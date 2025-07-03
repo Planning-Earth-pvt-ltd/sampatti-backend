@@ -3,9 +3,9 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { generateToken } from "../utils/generateToken";
 
-const accountSID = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const serviceSID = process.env.TWILIO_SERVICE_SID;
+const accountSID = process.env.TWILIO_ACCOUNT_SID!;
+const authToken = process.env.TWILIO_AUTH_TOKEN!;
+const serviceSID = process.env.TWILIO_SERVICE_SID!;
 
 const client = twilio(accountSID, authToken);
 
