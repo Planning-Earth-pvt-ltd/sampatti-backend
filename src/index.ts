@@ -4,7 +4,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
-import propertyRoutes from './routes/propertyRoutes';
+//import propertyRoutes from './routes/propertyRoutes';
 
 // dotenv.config();
 
@@ -29,7 +29,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Middleware
 app.use("/api/v1/user", userRoute);
-app.use('/api/v1/property', propertyRoutes);
+//app.use('/api/v1/property', propertyRoutes);
 
 // Server and database starting
 async function startServer(): Promise<void>  {
