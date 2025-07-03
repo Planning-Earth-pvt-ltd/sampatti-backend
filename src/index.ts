@@ -4,35 +4,32 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
-import propertyRoutes from './routes/propertyRoutes';
-
-// dotenv.config();
-
-console.log(
-  process.env.TWILIO_SERVICE_SID,
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+import propertyRoutes from './routes/propertyRoutes'; 
+import { errorHandlerMiddleware } from './middlewares/upload';
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.use(cors({ origin: "*" }));
+
+app.use('/uploads', express.static('uploads'));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Backend working");
 });
 
-// Middleware
 app.use("/api/v1/user", userRoute);
-app.use('/api', propertyRoutes);
 
-// Database Connection
+app.use('/api/v1/property', propertyRoutes);
+app.use(errorHandlerMiddleware);
+
 prisma.$connect();
 console.log("Database Connected");
 
-const PORT = process.env.PORT;
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);

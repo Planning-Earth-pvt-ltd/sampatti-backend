@@ -1,30 +1,22 @@
-datasource db {
-  provider = "postgresql" // or your database provider (e.g., mysql)
-  url      = env("DATABASE_URL") // Ensure this is set in your `.env` file
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-
-enum KYCStatus {
-  PENDING
-  APPROVED
-  REJECTED
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-
 
 model User {
   id            String    @id @default(cuid()) @map("userId")
   fullName      String
   phoneNumber   String    @unique
   email         String?   @unique
-  kycStatus     KYCStatus @default(PENDING)
   isKycVerified Boolean   @default(false)
   createdBy     String    @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  kycStatus     KYCStatus @default(PENDING)
   Token         Token[]
 
   @@map("users")
@@ -45,26 +37,38 @@ model Token {
 }
 
 model Property {
-  id                String         @id @default(cuid())
-  title             String
-  description       String
-  address           String
-  city              String
-  state             String
-  propertyType      PropertyType
-  totalAreaSqft     Float
-  TotalTokens       Int       
-  currentValuation  Float
-  PricePerSqFt      Float
-  SqFtAreaPerToken  Float
-  PricePerToken     Float
-  status            PropertyStatus
-  ownerUserId       String
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  title            String
+  description      String
+  address          String
+  city             String
+  state            String
+  propertyCategory PropertyCategory   
+  propertyType     String
+  propertySubType  String?    
+  images           String[]     
+
+  totalAreaSqft    Float
+  TotalTokens      Int
+  currentValuation Float
+  PricePerSqFt     Float
+  SqFtAreaPerToken Float
+  PricePerToken    Float
+  status           PropertyStatus
+  ownerUserId      String
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
-enum PropertyType {
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PropertyCategory{
   Residential
   Commercial
   Industrial
@@ -72,9 +76,8 @@ enum PropertyType {
 }
 
 enum PropertyStatus {
-  Active
   Listed
+  Active
   Sold
+  Funded
 }
-
-
