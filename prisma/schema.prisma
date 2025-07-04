@@ -1,26 +1,38 @@
-<<<<<<< HEAD
-=======
 datasource db {
-  provider  = "postgresql" // or your database provider (e.g., mysql)
-  url       = env("DATABASE_URL") // Ensure this is set in your `.env` file
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
->>>>>>> 61733efe84116e7f1fbbf6403b8662fd68997cb4
 generator client {
   provider = "prisma-client-js"
 }
 
-<<<<<<< HEAD
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-=======
 enum KYCStatus {
   PENDING
   APPROVED
   REJECTED
->>>>>>> 61733efe84116e7f1fbbf6403b8662fd68997cb4
+}
+
+enum PropertyCategory {
+  Residential
+  Commercial
+  Industrial
+  Land
+}
+
+enum PropertyStatus {
+  Listed
+  Active
+  Sold
+  Funded
+}
+
+enum PropertyType {
+  Apartment
+  House
+  Plot
+  Villa
 }
 
 model User {
@@ -52,63 +64,6 @@ model Token {
   @@map("user_tokens")
 }
 
-model Property {
-  id               String         @id @default(cuid())
-  title            String
-  description      String
-  address          String
-  city             String
-  state            String
-<<<<<<< HEAD
-  propertyCategory PropertyCategory   
-  propertyType     String
-  propertySubType  String?    
-  images           String[]     
-
-=======
-  propertyType     PropertyType
->>>>>>> 61733efe84116e7f1fbbf6403b8662fd68997cb4
-  totalAreaSqft    Float
-  TotalTokens      Int
-  currentValuation Float
-  PricePerSqFt     Float
-  SqFtAreaPerToken Float
-  PricePerToken    Float
-  status           PropertyStatus
-<<<<<<< HEAD
-  ownerUserId      String
-
-=======
-  seller           Seller         @relation(fields: [sellerId], references: [id])
-  sellerId         String
->>>>>>> 61733efe84116e7f1fbbf6403b8662fd68997cb4
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-}
-
-
-enum KYCStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum PropertyCategory{
-  Residential
-  Commercial
-  Industrial
-  Land
-}
-
-enum PropertyStatus {
-  Listed
-  Active
-  Sold
-  Funded
-}
-<<<<<<< HEAD
-=======
-
 model Seller {
   id          String     @id @default(cuid())
   name        String
@@ -116,4 +71,28 @@ model Seller {
   address     String
   PropertyId  Property[] // One seller - many properties
 }
->>>>>>> 61733efe84116e7f1fbbf6403b8662fd68997cb4
+
+model Property {
+  id               String           @id @default(cuid())
+  title            String
+  description      String
+  address          String
+  city             String
+  state            String
+  propertyCategory PropertyCategory
+  propertyType     PropertyType
+  propertySubType  String?
+  images           String[]
+  totalAreaSqft    Float
+  TotalTokens      Int
+  currentValuation Float
+  PricePerSqFt     Float
+  SqFtAreaPerToken Float
+  PricePerToken    Float
+  status           PropertyStatus
+  ownerUserId      String
+  sellerId         String?
+  seller           Seller?           @relation(fields: [sellerId], references: [id])
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}

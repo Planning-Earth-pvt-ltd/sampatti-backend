@@ -8,7 +8,7 @@ import {
   getPropertiesByStatus,
   getPropertiesByCategory,
   getPropertiesByOwner,
-} from '../controller/propertyController';
+} from '../controller/property.controller';
 import { handleMultipartData } from '../middlewares/upload';
 
 const router = express.Router();
