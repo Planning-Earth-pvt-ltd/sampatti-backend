@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql" // or your database provider (e.g., mysql)
+  url       = env("DATABASE_URL") // Ensure this is set in your .env file
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -37,16 +38,16 @@ model Token {
 }
 
 model Property {
-  id               String         @id @default(cuid())
+  id               String           @id @default(cuid())
   title            String
   description      String
   address          String
   city             String
   state            String
-  propertyCategory PropertyCategory   
+  propertyCategory PropertyCategory
   propertyType     String
-  propertySubType  String?    
-  images           String[]     
+  propertySubType  String?
+  images           String[]
 
   totalAreaSqft    Float
   TotalTokens      Int
@@ -57,10 +58,9 @@ model Property {
   status           PropertyStatus
   ownerUserId      String
 
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 
 enum KYCStatus {
   PENDING
@@ -68,7 +68,7 @@ enum KYCStatus {
   REJECTED
 }
 
-enum PropertyCategory{
+enum PropertyCategory {
   Residential
   Commercial
   Industrial
