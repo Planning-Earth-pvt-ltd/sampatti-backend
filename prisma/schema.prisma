@@ -28,13 +28,6 @@ enum PropertyStatus {
   Funded
 }
 
-enum PropertyType {
-  Apartment
-  House
-  Plot
-  Villa
-}
-
 model User {
   id            String    @id @default(cuid()) @map("userId")
   fullName      String
@@ -80,7 +73,7 @@ model Property {
   city             String
   state            String
   propertyCategory PropertyCategory
-  propertyType     PropertyType
+  propertyType     String
   propertySubType  String?
   images           String[]
   totalAreaSqft    Float
@@ -92,7 +85,7 @@ model Property {
   status           PropertyStatus
   ownerUserId      String
   sellerId         String?
-  seller           Seller?           @relation(fields: [sellerId], references: [id])
+  seller           Seller?          @relation(fields: [sellerId], references: [id])
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
