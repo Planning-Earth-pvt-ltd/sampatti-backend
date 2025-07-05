@@ -11,7 +11,7 @@ import {
 } from '../controller/property.controller';
 import { handleMultipartData } from '../middlewares/upload';
 
-const router = express.Router();
+const router = express.Router();    
 
 router.post('/addproperty', handleMultipartData, addProperty);
 router.put('/property/:id', handleMultipartData, updateProperty);
