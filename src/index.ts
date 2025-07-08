@@ -4,7 +4,8 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
-import propertyRoutes from './routes/propertyRoutes'; 
+import propertyRoutes from './routes/propertyRoutes';
+import sellerRoutes from './routes/seller.route';
 import { errorHandlerMiddleware } from './middlewares/upload';
 
 
@@ -29,23 +30,24 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/user", userRoute);
-
 app.use('/api/v1/property', propertyRoutes);
+app.use('/api/v1/seller', sellerRoutes);
 app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {
     try {
       const PORT = process.env.PORT || 5000;
 
-   await prisma.$connect();
-   console.log("Database Connected");
 
-   app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
-});
+    await prisma.$connect();
+    console.log("Database Connected");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on ${PORT}`);
+    });
 
   } catch (error) {
-    console.log("error" , error);
+    console.log("error", error);
   }
 };
 
