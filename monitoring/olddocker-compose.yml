@@ -1,0 +1,39 @@
+# version: '3.8'
+
+# services:
+#   backend:
+#     build: .
+#     container_name: share-sampatti-backend
+#     ports:
+#       - "4000:4000"
+#     env_file:
+#       - .env
+#     environment:
+#       - DB_HOST=db
+#       - DB_PORT=5432
+#       - DB_USER=postgres
+#       - DB_PASSWORD=postgres
+#       - DB_NAME=sharesampatti
+#     depends_on:
+#       - db
+#     volumes:
+#       - .:/usr/src/app
+#       - /usr/src/app/node_modules
+#     command: npm run dev
+
+#   db:
+#     image: postgres:15
+#     container_name: share-sampatti-db
+#     restart: always
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: sharesampatti
+#     ports:
+#       - "5433:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_data:
+
