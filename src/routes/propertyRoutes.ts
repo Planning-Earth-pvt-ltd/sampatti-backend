@@ -8,6 +8,7 @@ import {
   getPropertiesByStatus,
   getPropertiesByCategory,
   getPropertiesByOwner,
+  listHomeProps,
 } from '../controller/property.controller';
 import { handleMultipartData } from '../middlewares/upload';
 
@@ -21,6 +22,7 @@ router.delete('/property/:id', deleteProperty);
 router.get('/status/:status', getPropertiesByStatus);
 router.get('/category/:category', getPropertiesByCategory);
 router.get('/owner/:ownerUserId', getPropertiesByOwner);
+router.get('/property_home', listHomeProps);
 
 export default router;
 

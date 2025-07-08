@@ -8,12 +8,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-<<<<<<< HEAD
-datasource db {
-  provider  = "postgresql" // or your database provider (e.g., mysql)
-  url       = env("DATABASE_URL") // Ensure this is set in your .env file
-  directUrl = env("DIRECT_URL")
-=======
 enum KYCStatus {
   PENDING
   APPROVED
@@ -32,14 +26,6 @@ enum PropertyStatus {
   Active
   Sold
   Funded
-}
-
-enum PropertyType {
-  Apartment
-  House
-  Plot
-  Villa
->>>>>>> f6a7dcd74ee96e35ce250c6afd725ed2b32ded2a
 }
 
 model User {
@@ -87,16 +73,9 @@ model Property {
   city             String
   state            String
   propertyCategory PropertyCategory
-<<<<<<< HEAD
   propertyType     String
   propertySubType  String?
   images           String[]
-
-=======
-  propertyType     PropertyType
-  propertySubType  String?
-  images           String[]
->>>>>>> f6a7dcd74ee96e35ce250c6afd725ed2b32ded2a
   totalAreaSqft    Float
   TotalTokens      Int
   currentValuation Float
@@ -105,34 +84,8 @@ model Property {
   PricePerToken    Float
   status           PropertyStatus
   ownerUserId      String
-<<<<<<< HEAD
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum KYCStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum PropertyCategory {
-  Residential
-  Commercial
-  Industrial
-  Land
-}
-
-enum PropertyStatus {
-  Listed
-  Active
-  Sold
-  Funded
-=======
   sellerId         String?
-  seller           Seller?           @relation(fields: [sellerId], references: [id])
+  seller           Seller?          @relation(fields: [sellerId], references: [id])
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
->>>>>>> f6a7dcd74ee96e35ce250c6afd725ed2b32ded2a
 }

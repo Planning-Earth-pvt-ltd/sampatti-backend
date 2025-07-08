@@ -11,9 +11,7 @@ import { errorHandlerMiddleware } from './middlewares/upload';
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-//import propertyRoutes from './routes/propertyRoutes';
 
-// dotenv.config();
 console.log("DB_URL",process.env.DATABASE_URL);
 console.log("DB_URL",process.env.DIRECT_URL);
 console.log("Twilio SID",process.env.TWILIO_ACCOUNT_SID);
@@ -35,10 +33,6 @@ app.use("/api/v1/user", userRoute);
 app.use('/api/v1/property', propertyRoutes);
 app.use(errorHandlerMiddleware);
 
-//const PORT = process.env.PORT || 3000;
-//app.use('/api/v1/property', propertyRoutes);
-
-// Server and database starting
 async function startServer(): Promise<void>  {
     try {
       const PORT = process.env.PORT || 5000;
