@@ -69,7 +69,8 @@ export const addProperty = async (req: Request, res: Response): Promise<void> =>
     const SqFtAreaPerToken = area / tokens;
     const PricePerToken = SqFtAreaPerToken * PricePerSqFt;
 
-    const images = extractImageFilenames(req.files as Express.Multer.File[] | undefined);
+    const images = (req as any).cloudinaryImageUrls || [];
+
 
     const newProperty = await prisma.property.create({
       data: {
@@ -171,7 +172,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const imagesFromReq = extractImageFilenames(req.files as Express.Multer.File[] | undefined);
+    const imagesFromReq = (req as any).cloudinaryImageUrls || [];
 
     const existingImgsArray = Array.isArray(existingImages) ? existingImages : existingImages ? [existingImages] : [];
 
@@ -273,3 +274,23 @@ export const getPropertiesByOwner = async (req: Request, res: Response): Promise
     res.status(500).json({ error: 'Failed to fetch properties' });
   }
 };
+
+export const listHomeProps = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const properties = await prisma.property.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        images: true,
+        PricePerSqFt: true,
+      },
+    });
+
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('List Properties Error:', error);
+    res.status(500).json({ error: 'Failed to fetch properties' });
+  }
+};
+
