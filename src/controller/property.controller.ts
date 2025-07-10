@@ -294,3 +294,44 @@ export const listHomeProps = async (_req: Request, res: Response): Promise<void>
   }
 };
 
+
+export const getPropertiesByCity = async (req: Request, res: Response): Promise<void> => {
+  const { city } = req.params;
+
+  if (!city) {
+    res.status(400).json({ error: 'City parameter is required' });
+    return;
+  }
+
+  try {
+    const properties = await prisma.property.findMany({
+      where: { city: { equals: city, mode: 'insensitive' } },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('Get Properties by City Error:', error);
+    res.status(500).json({ error: 'Failed to fetch properties by city' });
+  }
+};
+
+
+export const getPropertiesByState = async (req: Request, res: Response): Promise<void> => {
+  const { state } = req.params;
+
+  if (!state) {
+    res.status(400).json({ error: 'State parameter is required' });
+    return;
+  }
+
+  try {
+    const properties = await prisma.property.findMany({
+      where: { state: { equals: state, mode: 'insensitive' } },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('Get Properties by State Error:', error);
+    res.status(500).json({ error: 'Failed to fetch properties by state' });
+  }
+};
