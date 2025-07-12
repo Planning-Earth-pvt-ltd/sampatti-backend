@@ -4,13 +4,8 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoute from "./routes/user.route";
 import prisma from "./prisma";
-<<<<<<< HEAD
 import propertyRoutes from './routes/propertyRoutes';
-import sellerRoutes from './routes/seller.route';
-=======
-import propertyRoutes from './routes/propertyRoutes'; 
 import u_DetailsRoutes from './routes/u_Details.routes'; 
->>>>>>> 3dc436e (8 routes all working also twilio added)
 import { errorHandlerMiddleware } from './middlewares/upload';
 
 
@@ -35,12 +30,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/user", userRoute);
-<<<<<<< HEAD
-=======
 app.use('/api/v1/u_Details', u_DetailsRoutes);
->>>>>>> 3dc436e (8 routes all working also twilio added)
 app.use('/api/v1/property', propertyRoutes);
-app.use('/api/v1/seller', sellerRoutes);
 app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {

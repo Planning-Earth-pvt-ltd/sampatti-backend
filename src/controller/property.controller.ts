@@ -17,8 +17,6 @@ const extractImageFilenames = (files: Express.Multer.File[] | undefined): string
   return files.map(file => file.filename);
 };
 
-
-
 export const addProperty = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -193,7 +191,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       SqFtAreaPerToken: +(area / tokens).toFixed(4),
       PricePerToken: +((area / tokens) * (valuation / area)).toFixed(4),
       status: status || existing.status,
-      images: [...existingImgsArray, ...imagesFromReq],
+      //images: [...existingImgsArray, ...imagesFromReq],
       updatedAt: new Date(),
     };
 

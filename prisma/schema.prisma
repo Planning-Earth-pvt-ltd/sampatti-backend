@@ -28,17 +28,31 @@ enum PropertyStatus {
   Funded
 }
 
+enum TransactionType {
+  BUYED
+  SELLED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
 model User {
-  id            String    @id @default(cuid()) @map("userId")
+  id            String         @id @default(cuid()) @map("userId")
   fullName      String
-  phoneNumber   String    @unique
-  email         String?   @unique
-  isKycVerified Boolean   @default(false)
-  createdBy     String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  kycStatus     KYCStatus @default(PENDING)
+  phoneNumber   String         @unique
+  email         String?        @unique
+  isKycVerified Boolean        @default(false)
+  createdBy     String         @default("user")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  kycStatus     KYCStatus      @default(PENDING)
+
   Token         Token[]
+  Cart          Cart[]
+  Transaction   Transaction[]
 
   @@map("users")
 }
@@ -49,6 +63,7 @@ model Token {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -57,12 +72,13 @@ model Token {
   @@map("user_tokens")
 }
 
-model Seller {
+model OwnerUser {
   id          String     @id @default(cuid())
   name        String
   phoneNumber String     @unique
   address     String
-  PropertyId  Property[] // One seller - many properties
+
+  properties  Property[]
 }
 
 model Property {
@@ -84,8 +100,40 @@ model Property {
   PricePerToken    Float
   status           PropertyStatus
   ownerUserId      String
-  sellerId         String?
-  seller           Seller?          @relation(fields: [sellerId], references: [id])
+
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+
+  ownerUser        OwnerUser        @relation(fields: [ownerUserId], references: [id])
+  Cart             Cart[]
+  Transaction      Transaction[]
+}
+
+model Cart {
+  id           String   @id @default(cuid())
+  userId       String
+  propertyId   String
+  tokenPrice   Decimal
+  quantity     Int
+  amount       Decimal
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id])
+  property     Property @relation(fields: [propertyId], references: [id])
+}
+
+model Transaction {
+  id           String            @id @default(cuid()) @map("transactionId")
+  userId       String
+  propertyId   String
+  tokenPrice   Decimal
+  quantity     Int
+  amount       Decimal
+  type         TransactionType
+  status       TransactionStatus
+  createdAt    DateTime          @default(now())
+
+  user         User              @relation(fields: [userId], references: [id])
+  property     Property          @relation(fields: [propertyId], references: [id])
 }
