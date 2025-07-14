@@ -17,8 +17,6 @@ const extractImageFilenames = (files: Express.Multer.File[] | undefined): string
   return files.map(file => file.filename);
 };
 
-
-
 export const addProperty = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -69,7 +67,8 @@ export const addProperty = async (req: Request, res: Response): Promise<void> =>
     const SqFtAreaPerToken = area / tokens;
     const PricePerToken = SqFtAreaPerToken * PricePerSqFt;
 
-    const images = extractImageFilenames(req.files as Express.Multer.File[] | undefined);
+    const images = (req as any).cloudinaryImageUrls || [];
+
 
     const newProperty = await prisma.property.create({
       data: {
@@ -171,7 +170,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const imagesFromReq = extractImageFilenames(req.files as Express.Multer.File[] | undefined);
+    const imagesFromReq = (req as any).cloudinaryImageUrls || [];
 
     const existingImgsArray = Array.isArray(existingImages) ? existingImages : existingImages ? [existingImages] : [];
 
@@ -192,7 +191,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       SqFtAreaPerToken: +(area / tokens).toFixed(4),
       PricePerToken: +((area / tokens) * (valuation / area)).toFixed(4),
       status: status || existing.status,
-      images: [...existingImgsArray, ...imagesFromReq],
+      //images: [...existingImgsArray, ...imagesFromReq],
       updatedAt: new Date(),
     };
 
@@ -271,5 +270,66 @@ export const getPropertiesByOwner = async (req: Request, res: Response): Promise
   } catch (error) {
     console.error('Get Properties by Owner Error:', error);
     res.status(500).json({ error: 'Failed to fetch properties' });
+  }
+};
+
+export const listHomeProps = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const properties = await prisma.property.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        images: true,
+        PricePerSqFt: true,
+      },
+    });
+
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('List Properties Error:', error);
+    res.status(500).json({ error: 'Failed to fetch properties' });
+  }
+};
+
+
+export const getPropertiesByCity = async (req: Request, res: Response): Promise<void> => {
+  const { city } = req.params;
+
+  if (!city) {
+    res.status(400).json({ error: 'City parameter is required' });
+    return;
+  }
+
+  try {
+    const properties = await prisma.property.findMany({
+      where: { city: { equals: city, mode: 'insensitive' } },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('Get Properties by City Error:', error);
+    res.status(500).json({ error: 'Failed to fetch properties by city' });
+  }
+};
+
+
+export const getPropertiesByState = async (req: Request, res: Response): Promise<void> => {
+  const { state } = req.params;
+
+  if (!state) {
+    res.status(400).json({ error: 'State parameter is required' });
+    return;
+  }
+
+  try {
+    const properties = await prisma.property.findMany({
+      where: { state: { equals: state, mode: 'insensitive' } },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('Get Properties by State Error:', error);
+    res.status(500).json({ error: 'Failed to fetch properties by state' });
   }
 };

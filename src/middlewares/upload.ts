@@ -1,23 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
 import multer, { FileFilterCallback, MulterError } from 'multer';
-import path from 'path';
-import fs from 'fs';
+import cloudinary from './cloudinary';
+import { Readable } from 'stream';
 
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `property-${uniqueSuffix}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.startsWith('image/')) {
@@ -31,21 +17,57 @@ export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 1 * 1024 * 1024, // 1MB
     files: 10,
   },
 });
 
+const streamUpload = (buffer: Buffer): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (!buffer || buffer.length === 0) {
+      return reject(new Error("Empty file buffer"));
+    }
+
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'properties' },
+      (error, result) => {
+        if (error || !result) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+
+    Readable.from(buffer).pipe(stream);
+  });
+};
+
 export const handleMultipartData = (req: Request, res: Response, next: NextFunction): void => {
   const contentType = req.headers['content-type'];
   if (contentType && contentType.includes('multipart/form-data')) {
-    upload.array('images', 10)(req, res, (err?: any) => {
+    upload.array('images', 10)(req, res, async (err?: any) => {
       if (err instanceof MulterError || err instanceof Error) {
         console.error('Multer error:', err);
         res.status(400).json({ error: 'File upload error: ' + err.message });
         return;
       }
-      next();
+
+      try {
+        const files = (req.files || []) as Express.Multer.File[];
+
+        if (!Array.isArray(files) || files.length === 0) {
+          return res.status(400).json({ error: 'No image files uploaded' });
+        }
+
+        const uploadedUrls = await Promise.all(
+          files.map((file) => streamUpload(file.buffer))
+        );
+
+        (req as any).cloudinaryImageUrls = uploadedUrls;
+
+        next();
+      } catch (uploadErr) {
+        console.error('Cloudinary upload error:', uploadErr);
+        res.status(500).json({ error: 'Cloudinary upload failed' });
+      }
     });
   } else {
     next();
@@ -69,7 +91,7 @@ export const errorHandlerMiddleware = (err: unknown, _req: Request, res: Respons
   if (err instanceof MulterError) {
     switch (err.code) {
       case 'LIMIT_FILE_SIZE':
-        res.status(400).json({ error: 'File too large. Max size is 5MB.' });
+        res.status(400).json({ error: 'File too large. Max size is 1MB.' });
         return;
       case 'LIMIT_FILE_COUNT':
         res.status(400).json({ error: 'Too many files. Max allowed is 10.' });
