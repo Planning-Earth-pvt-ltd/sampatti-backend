@@ -1,14 +1,18 @@
-// transactionRoutes.ts
 import express from 'express';
 import {
-  createTransaction, getUserTransactions, updateTransactionStatus, getTransactionById,
+  createTransactionAndOrder,
+  verifyTransactionPayment,
+  getUserTransactions,
+  updateTransactionStatus,
+  getTransactionById,
 } from '../controller/transactionController';
 
 const router = express.Router();
 
-router.post('/', createTransaction);
-router.get('/:userId', getUserTransactions);
-router.get('/single/:id', getTransactionById);
-router.put('/:id', updateTransactionStatus);
+router.post('/create', createTransactionAndOrder);
+router.post('/verify', verifyTransactionPayment);
+router.get('/user/:userId', getUserTransactions);
+router.get('/:id', getTransactionById);
+router.put('/status/:id', updateTransactionStatus);
 
 export default router;
