@@ -7,6 +7,8 @@ import prisma from "./prisma";
 import propertyRoutes from './routes/propertyRoutes';
 import u_DetailsRoutes from './routes/u_Details.routes'; 
 import { errorHandlerMiddleware } from './middlewares/upload';
+import cartRoutes from './routes/cartRoutes';
+import transactionRoutes from './routes/transactionRoutes';
 
 
 const app = express();
@@ -32,6 +34,8 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1/user", userRoute);
 app.use('/api/v1/u_Details', u_DetailsRoutes);
 app.use('/api/v1/property', propertyRoutes);
+app.use('/api/v1/carts', cartRoutes);
+app.use('/api/v1/transactions', transactionRoutes);
 app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {
