@@ -28,16 +28,17 @@ enum PropertyStatus {
   Funded
 }
 
-enum TransactionType {
-  BUYED
-  SELLED
-}
-
 enum TransactionStatus {
   PENDING
-  COMPLETED
+  SUCCESS
   FAILED
 }
+
+enum TransactionType {
+  BUY
+  SELL
+}
+
 
 model User {
   id            String         @id @default(cuid()) @map("userId")
@@ -124,16 +125,20 @@ model Cart {
 }
 
 model Transaction {
-  id           String            @id @default(cuid()) @map("transactionId")
-  userId       String
-  propertyId   String
-  tokenPrice   Decimal
-  quantity     Int
-  amount       Decimal
-  type         TransactionType
-  status       TransactionStatus
-  createdAt    DateTime          @default(now())
+  id                String            @id @default(cuid()) @map("transactionId")
+  userId            String
+  propertyId        String
+  tokenPrice        Decimal
+  quantity          Int
+  amount            Decimal
+  type              TransactionType
+  status            TransactionStatus
+  razorpayOrderId   String?           // Razorpay order ID (generated before payment)
+  razorpayPaymentId String?           // Razorpay payment ID (after successful payment)
+  razorpaySignature String?           // For signature verification
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
-  user         User              @relation(fields: [userId], references: [id])
-  property     Property          @relation(fields: [propertyId], references: [id])
+  user              User              @relation(fields: [userId], references: [id])
+  property          Property          @relation(fields: [propertyId], references: [id])
 }

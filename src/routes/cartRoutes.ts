@@ -6,10 +6,10 @@ import {
 
 const router = express.Router();
 
-router.post('/', addToCart);
-router.get('/:userId', getUserCart);
-router.put('/:id', updateCartItem);
-router.delete('/:id', deleteCartItem);
+router.post('/addcart', addToCart);
+router.get('/usercart/:userId', getUserCart);
+router.put('/update/:id', updateCartItem);
+router.delete('/deleteOne/:id', deleteCartItem);
 router.delete('/clear/:userId', clearCart);
 
 export default router;
