@@ -124,4 +124,6 @@ const verifyAccessToken = async (accessToken) => {
         throw new Error("Invalid access token");
     }
 };
+
+
 exports.verifyAccessToken = verifyAccessToken;
