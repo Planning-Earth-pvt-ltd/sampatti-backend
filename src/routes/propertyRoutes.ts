@@ -2,7 +2,7 @@ import express from 'express';
 import {
   addProperty,
   updateProperty,
-  listProperties,
+  listProperties, 
   deleteProperty,
   getProperty,
   getPropertiesByStatus,
@@ -26,7 +26,6 @@ router.get('/category/:category', getPropertiesByCategory);
 router.get('/owner/:ownerUserId', getPropertiesByOwner);
 router.get('/property_home', listHomeProps);
 router.get('/city/:city', getPropertiesByCity);
-router.get('/state/:state', getPropertiesByState);
+router.get('/state/:state', getPropertiesByState); 
 
 export default router;
-

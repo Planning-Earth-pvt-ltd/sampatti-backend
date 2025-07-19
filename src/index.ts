@@ -9,7 +9,7 @@ import u_DetailsRoutes from './routes/u_Details.routes';
 import { errorHandlerMiddleware } from './middlewares/upload';
 import cartRoutes from './routes/cartRoutes';
 import transactionRoutes from './routes/transactionRoutes';
-
+import ownerRoutes from './routes/ownerUser.route';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -36,6 +36,7 @@ app.use('/api/v1/u_Details', u_DetailsRoutes);
 app.use('/api/v1/property', propertyRoutes);
 app.use('/api/v1/carts', cartRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/ownerUser', ownerRoutes);
 app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {
