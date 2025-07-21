@@ -43,5 +43,6 @@ HEALTHCHECK --interval=30s --timeout=10s \
   CMD curl -f http://localhost:4000/api/health || exit 1
 
 # Start with PM2
-CMD ["pm2-runtime", "start", "dist/index.js", "--name", "api", "--no-daemon", "--instances", "max"]
+CMD ["pm2-runtime", "start", "dist/index.js"]
+
 
