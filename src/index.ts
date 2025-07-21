@@ -10,6 +10,7 @@ import { errorHandlerMiddleware } from './middlewares/upload';
 import cartRoutes from './routes/cartRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import ownerRoutes from './routes/ownerUser.route';
+import progressRoute from './routes/progress.route';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -37,11 +38,12 @@ app.use('/api/v1/property', propertyRoutes);
 app.use('/api/v1/carts', cartRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/ownerUser', ownerRoutes);
+app.use('/api/v1/progressRoute', progressRoute);
 app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {
     try {
-      const PORT = process.env.PORT || 5000;
+      const PORT = process.env.PORT || 4000;
 
 
     await prisma.$connect();
