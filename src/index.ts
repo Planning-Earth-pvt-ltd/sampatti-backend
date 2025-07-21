@@ -12,9 +12,12 @@ import transactionRoutes from './routes/transactionRoutes';
 <<<<<<< HEAD
 import ownerRoutes from './routes/ownerUser.route';
 import progressRoute from './routes/progress.route';
+<<<<<<< HEAD
 =======
 
 >>>>>>> 5abaac0 (cart working and testing done , transactions left)
+=======
+>>>>>>> 83beddc (progress routes for app and admin done)
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -44,8 +47,11 @@ app.use('/api/v1/transactions', transactionRoutes);
 <<<<<<< HEAD
 app.use('/api/v1/ownerUser', ownerRoutes);
 app.use('/api/v1/progressRoute', progressRoute);
+<<<<<<< HEAD
 =======
 >>>>>>> 5abaac0 (cart working and testing done , transactions left)
+=======
+>>>>>>> 83beddc (progress routes for app and admin done)
 app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {
