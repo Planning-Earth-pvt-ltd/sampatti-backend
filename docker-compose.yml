@@ -4,35 +4,19 @@ services:
   backend:
     build: .
     container_name: share-sampatti-backend
+    restart: unless-stopped
     ports:
       - "4000:4000"
     env_file:
       - .env
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=sharesampatti
-    depends_on:
-      - db
+      - NODE_ENV=production
+      - PORT=4000
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run dev
-
-  db:
-    image: postgres:15
-    container_name: share-sampatti-db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: sharesampatti
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /usr/src/app/uploads
+    command: pm2-runtime start npm -- run dev --no-daemon
 
   prometheus:
     image: prom/prometheus:latest
@@ -47,12 +31,9 @@ services:
     container_name: share-sampatti-grafana
     ports:
       - "3000:3000"
-    depends_on:
-      - prometheus
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
 
 volumes:
-  postgres_data:
   grafana_data:
