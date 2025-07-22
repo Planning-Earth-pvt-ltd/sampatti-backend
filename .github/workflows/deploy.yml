@@ -1,0 +1,40 @@
+name: Auto Deploy Backend to EC2 on Push to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Code to EC2
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            set -e
+            cd /var/www/backend
+
+            echo "Pulling latest code..."
+            git reset --hard
+            git pull origin main
+
+            echo "Rebuilding Docker image..."
+            docker-compose down
+            docker-compose build
+            docker-compose up -d --remove-orphans
+
+            echo "✅ Deployment successful!"
+          EOF
