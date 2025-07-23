@@ -21,15 +21,16 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Test SSH Connection
-        run: ssh -o StrictHostKeyChecking=no -o BatchMode=yes ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo '✅ SSH successful!'"
+        run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o BatchMode=yes ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo '✅ SSH successful!'"
 
       - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             set -e
             cd /var/www/backend/sampatti-backend
-            git pull origin main
-            docker-compose down
+            git fetch origin main
+            git reset --hard origin/main
+            docker-compose down || true
             docker-compose build --no-cache
             docker-compose up -d
           EOF
