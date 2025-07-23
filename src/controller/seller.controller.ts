@@ -17,7 +17,7 @@ export const OwnerAdd = async (req:Request<PropertyOwner>,res:Response): Promise
       })
     }
 
-    let propertyOwner = await prisma.seller.findUnique({
+    let propertyOwner = await prisma.ownerUser.findUnique({
       where:{phoneNumber},
     })
 
@@ -27,7 +27,7 @@ export const OwnerAdd = async (req:Request<PropertyOwner>,res:Response): Promise
       })
     }
 
-    propertyOwner = await prisma.seller.create({
+    propertyOwner = await prisma.ownerUser.create({
       data:{
         name,
         phoneNumber,
