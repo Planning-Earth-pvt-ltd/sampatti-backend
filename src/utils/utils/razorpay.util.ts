@@ -11,8 +11,4 @@ export const verifySignature = (
     .digest('hex');
 
   return generatedSignature === razorpay_signature;
-<<<<<<< HEAD
 }; 
-=======
-};
->>>>>>> 5abaac0 (cart working and testing done , transactions left)
