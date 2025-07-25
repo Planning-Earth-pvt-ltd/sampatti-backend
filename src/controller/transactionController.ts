@@ -19,15 +19,15 @@ export const createTransactionAndOrder = async (req: Request, res: Response) => 
     const property = await prisma.property.findUnique({ where: { id: propertyId } });
     if (!property) return res.status(404).json({ error: 'Property not found' });
 
-    const tokenPrice = Number(property.PricePerToken);
-    const amount = tokenPrice * quantity;
+   const tokenPrice = Number(property.PricePerToken);
+const amount = Math.round(tokenPrice * quantity * 100); // in paise, rounded to integer
 
-    // Create Razorpay Order
-    const order = await razorpay.orders.create({
-      amount: amount * 100, // in paise
-      currency: 'INR',
-      receipt: `receipt_${Date.now()}`,
-    });
+const order = await razorpay.orders.create({
+  amount,
+  currency: 'INR',
+  receipt: `receipt_${Date.now()}`,
+});
+
 
     // Create transaction with Razorpay order info
     const transaction = await prisma.transaction.create({

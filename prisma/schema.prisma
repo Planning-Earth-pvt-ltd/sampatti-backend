@@ -142,3 +142,14 @@ model Transaction {
   user              User              @relation(fields: [userId], references: [id])
   property          Property          @relation(fields: [propertyId], references: [id])
 }
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+
+  @@map("admins")
+}
