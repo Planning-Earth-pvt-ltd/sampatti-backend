@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { comparePassword, hashPassword } from '../utils/hash';
 import { generateCustomId } from '../utils/generateOwnerId';
-
+import { generateOTP } from '../utils/resetOTP';
+import { sendOTPNotification } from '../services/mailService';
+import { saveOTP, verifyStoredOTP } from '../utils/generateOTP';
+import { compare } from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -10,31 +13,25 @@ export const adminLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const admin = await prisma.admin.findUnique({ where: { email } });
-
-    if (!admin || !(await comparePassword(password, admin.password))) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-      });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
-    res.json({
-      success: true,
-      message: 'Login successful',
-      admin: {
-        id: admin.id,
-        name: admin.name,
-        email: admin.email
-      }
-    });
+    const admin = await prisma.admin.findUnique({ where: { email } });
 
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
+    if (!admin || !admin.password) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const isMatch = await compare(password, admin.password); 
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+    res.json({ message: "Login successful", admin: { id: admin.id, email: admin.email } });
+  } catch (error: any) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Error logging in", error: error.message || 'Unknown error' });
   }
 };
 
@@ -104,4 +101,50 @@ export const getAdmin = async (req: Request, res: Response) => {
       message: 'Failed to fetch admin'
     });
   }
+};
+
+export const requestPasswordOTP = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const admin = await prisma.admin.findUnique({ where: { email } });
+  if (!admin) return res.status(404).json({ error: 'Admin not found' });
+
+  const otp = generateOTP();
+  saveOTP(email, otp);
+
+  await sendOTPNotification(email, otp);
+  res.json({ message: 'OTP sent to email' });
+};
+
+export const verifyOTP = async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp)
+    return res.status(400).json({ error: 'Email and OTP required' });
+
+  const valid = verifyStoredOTP(email, otp);
+
+  if (!valid) {
+    return res.status(400).json({ error: 'Invalid or expired OTP' });
+  }
+
+  res.json({ message: 'OTP verified. You can now reset your password.' });
+};
+
+export const changePasswordAfterOTP = async (req: Request, res: Response) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword)
+    return res.status(400).json({ error: 'Email and password required' });
+
+  const hashed = await hashPassword(newPassword);
+
+  await prisma.admin.update({
+    where: { email },
+    data: {
+      password: hashed,
+    },
+  });
+
+  res.json({ message: 'Password changed successfully.' });
 };

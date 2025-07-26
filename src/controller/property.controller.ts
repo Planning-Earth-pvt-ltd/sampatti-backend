@@ -333,3 +333,4 @@ export const getPropertiesByState = async (req: Request, res: Response): Promise
     res.status(500).json({ error: 'Failed to fetch properties by state' });
   }
 };
+
