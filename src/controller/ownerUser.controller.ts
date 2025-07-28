@@ -120,13 +120,34 @@ export const assignPropertyToOwner = async (req: Request, res: Response) => {
   }
 };
 
+// export const deleteOwner = async (req: Request, res: Response) => {
+//   const { id } = req.params;
+
+//   try {
+//     await prisma.ownerUser.delete({ where: { id } });
+//     res.status(200).json({ success: true, message: 'Owner deleted successfully' });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: 'Failed to delete owner' });
+//   }
+// };
+
 export const deleteOwner = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    await prisma.ownerUser.delete({ where: { id } });
-    res.status(200).json({ success: true, message: 'Owner deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to delete owner' });
-  }
+    
+    await prisma.property.deleteMany({
+      where: { ownerUserId: id },
+    });
+
+    
+    await prisma.ownerUser.delete({
+      where: { id },
+    });
+
+    return res.status(200).json({ message: "Owner and their properties deleted successfully" });
+  } catch (error: any) {
+    console.error("Delete error:", error);
+    return res.status(500).json({ message: error.message || "Failed to delete owner" });
+  }
 };

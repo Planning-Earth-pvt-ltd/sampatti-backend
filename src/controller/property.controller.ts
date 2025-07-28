@@ -207,19 +207,41 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
   }
 };
 
+// export const deleteProperty = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const property = await prisma.property.findUnique({ where: { id: req.params.id } });
+//     if (!property) {
+//       res.status(404).json({ error: 'Property not found' });
+//       return;
+//     }
+//     await prisma.property.delete({ where: { id: req.params.id } });
+//     res.status(204).send();
+//   } catch (error) {
+//     console.error('Delete Property Error:', error);
+//     res.status(500).json({ error: 'Failed to delete property' });
+//   }
+// };
+
 export const deleteProperty = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
   try {
-    const property = await prisma.property.findUnique({ where: { id: req.params.id } });
+    // Check if the property exists
+    const property = await prisma.property.findUnique({ where: { id } });
+
     if (!property) {
-      res.status(404).json({ error: 'Property not found' });
+      res.status(404).json({ error: "Property not found" });
       return;
     }
-    await prisma.property.delete({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (error) {
-    console.error('Delete Property Error:', error);
-    res.status(500).json({ error: 'Failed to delete property' });
-  }
+
+    // Delete the property
+    await prisma.property.delete({ where: { id } });
+
+    res.status(200).json({ message: "Property deleted successfully" });
+  } catch (error: any) {
+    console.error("Delete Property Error:", error);
+    res.status(500).json({ error: error.message || "Failed to delete property" });
+  }
 };
 
 export const getPropertiesByStatus = async (req: Request, res: Response): Promise<void> => {
