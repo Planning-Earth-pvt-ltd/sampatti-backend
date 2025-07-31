@@ -102,6 +102,7 @@ export const addProperty = async (req: Request, res: Response): Promise<void> =>
 export const listProperties = async (_req: Request, res: Response): Promise<void> => {
   try {
     const properties = await prisma.property.findMany({
+      where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(properties);
@@ -113,7 +114,7 @@ export const listProperties = async (_req: Request, res: Response): Promise<void
 
 export const getProperty = async (req: Request, res: Response): Promise<void> => {
   try {
-    const property = await prisma.property.findUnique({ where: { id: req.params.id } });
+    const property = await prisma.property.findUnique({ where: { id: req.params.id ,isDeleted: false} });
     if (!property) {
       res.status(404).json({ error: 'Property not found' });
       return;
@@ -226,23 +227,30 @@ export const deleteProperty = async (req: Request, res: Response): Promise<void>
   const { id } = req.params;
 
   try {
-    // Check if the property exists
-    const property = await prisma.property.findUnique({ where: { id } });
+    const property = await prisma.property.findUnique({
+      where: { id },
+    });
 
-    if (!property) {
-      res.status(404).json({ error: "Property not found" });
+    if (!property || property.isDeleted) {
+      res.status(404).json({ error: "Property not found or already deleted" });
       return;
     }
 
-    // Delete the property
-    await prisma.property.delete({ where: { id } });
+    const deletedProperty = await prisma.property.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
 
-    res.status(200).json({ message: "Property deleted successfully" });
+    res.status(200).json({
+      message: "Property deleted successfully",
+      property: deletedProperty,
+    });
   } catch (error: any) {
     console.error("Delete Property Error:", error);
-    res.status(500).json({ error: error.message || "Failed to delete property" });
-  }
+    res.status(500).json({ error: error.message || "Failed to delete property" });
+  }
 };
+
 
 export const getPropertiesByStatus = async (req: Request, res: Response): Promise<void> => {
   const { status } = req.params;
@@ -253,7 +261,7 @@ export const getPropertiesByStatus = async (req: Request, res: Response): Promis
 
   try {
     const properties = await prisma.property.findMany({
-      where: { status },
+      where: { status ,isDeleted: false},
       orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(properties);
@@ -272,7 +280,7 @@ export const getPropertiesByCategory = async (req: Request, res: Response): Prom
 
   try {
     const properties = await prisma.property.findMany({
-      where: { propertyCategory: category },
+      where: { propertyCategory: category,isDeleted: false},
       orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(properties);
@@ -285,7 +293,7 @@ export const getPropertiesByCategory = async (req: Request, res: Response): Prom
 export const getPropertiesByOwner = async (req: Request, res: Response): Promise<void> => {
   try {
     const properties = await prisma.property.findMany({
-      where: { ownerUserId: req.params.ownerUserId },
+      where: { ownerUserId: req.params.ownerUserId,isDeleted: false },
       orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(properties);
@@ -298,6 +306,7 @@ export const getPropertiesByOwner = async (req: Request, res: Response): Promise
 export const listHomeProps = async (_req: Request, res: Response): Promise<void> => {
   try {
     const properties = await prisma.property.findMany({
+      where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -325,7 +334,7 @@ export const getPropertiesByCity = async (req: Request, res: Response): Promise<
 
   try {
     const properties = await prisma.property.findMany({
-      where: { city: { equals: city, mode: 'insensitive' } },
+      where: { city: { equals: city, mode: 'insensitive' },isDeleted: false },
       orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(properties);
@@ -346,7 +355,7 @@ export const getPropertiesByState = async (req: Request, res: Response): Promise
 
   try {
     const properties = await prisma.property.findMany({
-      where: { state: { equals: state, mode: 'insensitive' } },
+      where: { state: { equals: state, mode: 'insensitive' },isDeleted: false},
       orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(properties);

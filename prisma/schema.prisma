@@ -50,6 +50,7 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   kycStatus     KYCStatus      @default(PENDING)
+  isDeleted     Boolean        @default(false)
 
   Token         Token[]
   Cart          Cart[]
@@ -64,6 +65,7 @@ model Token {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+  isDeleted Boolean  @default(false)
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -78,6 +80,7 @@ model OwnerUser {
   name        String
   phoneNumber String     @unique
   address     String
+  isDeleted   Boolean    @default(false)
 
   properties  Property[]
 }
@@ -108,6 +111,8 @@ model Property {
   ownerUser        OwnerUser        @relation(fields: [ownerUserId], references: [id])
   Cart             Cart[]
   Transaction      Transaction[]
+  isDeleted        Boolean          @default(false)
+
 }
 
 model Cart {
@@ -119,6 +124,7 @@ model Cart {
   amount       Decimal
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  isDeleted    Boolean  @default(false)
 
   user         User     @relation(fields: [userId], references: [id])
   property     Property @relation(fields: [propertyId], references: [id])
@@ -138,18 +144,20 @@ model Transaction {
   razorpaySignature String?           // For signature verification
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  isDeleted Boolean @default(false)
 
   user              User              @relation(fields: [userId], references: [id])
   property          Property          @relation(fields: [propertyId], references: [id])
 }
 
 model Admin {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
+  id                String     @id @default(cuid())
+  email             String     @unique
+  password          String
+  name              String?
   resetToken        String?
   resetTokenExpiry  DateTime?
+  isDeleted         Boolean    @default(false)
 
   @@map("admins")
 }

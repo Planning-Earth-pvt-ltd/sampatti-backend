@@ -28,7 +28,7 @@ export const adminLogin = async (req: Request, res: Response) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    res.json({ message: "Login successful", admin: { id: admin.id, email: admin.email } });
+    res.json({ message: "Login successful", admin: { id: admin.id, email: admin.email,name: admin.name } });
   } catch (error: any) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message || 'Unknown error' });

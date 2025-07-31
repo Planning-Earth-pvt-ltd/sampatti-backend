@@ -9,6 +9,7 @@ const prisma = new PrismaClient();
 export const listProperties = async (_req: Request, res: Response): Promise<void> => {
   try {
     const properties = await prisma.property.findMany({
+      where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -38,6 +39,7 @@ export const listProperties = async (_req: Request, res: Response): Promise<void
   }
 };
 
+
 export const getFilteredProperties = async (req: Request, res: Response): Promise<void> => {
   const { state, category } = req.query;
 
@@ -48,7 +50,7 @@ export const getFilteredProperties = async (req: Request, res: Response): Promis
 
   try {
     const properties = await prisma.property.findMany({
-      where: {
+      where: {isDeleted: false,
         ...(state ? { state: { equals: state as string, mode: 'insensitive' } } : {}),
         ...(category ? { propertyCategory: category as PropertyCategory } : {}),
       },
@@ -85,6 +87,7 @@ export const getFilteredProperties = async (req: Request, res: Response): Promis
 export const listHomeProps = async (_req: Request, res: Response): Promise<void> => {
   try {
     const properties = await prisma.property.findMany({
+      where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

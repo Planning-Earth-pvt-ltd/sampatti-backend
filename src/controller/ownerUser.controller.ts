@@ -29,18 +29,29 @@ export const createOwner = async (req: Request, res: Response) => {
 
 export const getAllOwners = async (_req: Request, res: Response) => {
   try {
-    const owners = await prisma.ownerUser.findMany({ include: { properties: true } });
+    const owners = await prisma.ownerUser.findMany({
+      where: { isDeleted: false },
+      include: {
+        properties: {
+          where: { isDeleted: false }, // Only include non-deleted properties
+        },
+      },
+    });
+
     res.status(200).json({ success: true, data: owners });
   } catch (error) {
+    console.error("Get Owners Error:", error);
     res.status(500).json({ success: false, message: 'Failed to fetch owners' });
   }
 };
+
 
 export const getOwnerById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const owner = await prisma.ownerUser.findUnique({
-      where: { id },
+      where: { id ,isDeleted: false,},
+      
       include: { properties: true },
     });
     if (!owner) return res.status(404).json({ success: false, message: 'Owner not found' });
@@ -131,23 +142,33 @@ export const assignPropertyToOwner = async (req: Request, res: Response) => {
 //   }
 // };
 
-export const deleteOwner = async (req: Request, res: Response) => {
+export const deleteOwner = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    
-    await prisma.property.deleteMany({
-      where: { ownerUserId: id },
+    // Check if there are any properties that are not soft-deleted
+    const activeProperties = await prisma.property.findMany({
+      where: {
+        ownerUserId: id,
+        isDeleted: false,
+      },
     });
 
-    
-    await prisma.ownerUser.delete({
+    if (activeProperties.length > 0) {
+      res.status(400).json({
+        message: "Please delete all properties before deleting the owner",
+      });
+      return;
+    }
+
+    await prisma.ownerUser.update({
       where: { id },
+      data: { isDeleted: true },
     });
 
-    return res.status(200).json({ message: "Owner and their properties deleted successfully" });
+    res.status(200).json({ message: "Owner deleted successfully" });
   } catch (error: any) {
-    console.error("Delete error:", error);
-    return res.status(500).json({ message: error.message || "Failed to delete owner" });
-  }
+    console.error("Delete Owner Error:", error);
+    res.status(500).json({ message: error.message || "Failed to delete owner" });
+  }
 };
