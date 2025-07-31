@@ -21,6 +21,7 @@ RUN npx prisma generate
 RUN npm run build
 
 
+
 # -------- Stage 2: Production --------
 FROM node:18-alpine
 
@@ -29,20 +30,20 @@ WORKDIR /usr/src/app
 # Install PM2 globally
 RUN npm install -g pm2
 
-# Copy only necessary files from builder stage
+# Copy only necessary files
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/prisma ./prisma/
-COPY --from=builder /usr/src/app/node_modules ./node_modules/
 COPY --from=builder /usr/src/app/dist ./dist/
+
+# Install only production dependencies
+RUN npm ci --only=production
 
 # Expose port
 EXPOSE 4000
 
-# Healthcheck (Render support)
+# Healthcheck (optional)
 HEALTHCHECK --interval=30s --timeout=10s \
   CMD curl -f http://localhost:4000/api/health || exit 1
 
 # Start with PM2
 CMD ["pm2-runtime", "start", "dist/index.js"]
-
-
