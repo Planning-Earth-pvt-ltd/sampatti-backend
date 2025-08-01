@@ -13,6 +13,8 @@ import cartRoutes from './routes/cartRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import ownerRoutes from './routes/ownerUser.route';
 import progressRoute from './routes/progress.route';
+import dashboard from './routes/dashboardRoute';
+import adminRoutes from './routes/adminLogin.route';
 
 // Prometheus
 import client from "prom-client";
@@ -139,17 +141,20 @@ app.use('/api/v1/carts', cartRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/ownerUser', ownerRoutes);
 app.use('/api/v1/progress', progressRoute);
+app.use('/api/v1/dashboard',dashboard);
+app.use('/api/v1/admin',adminRoutes);
 app.use(errorHandlerMiddleware);
 
-// Start server
-async function startServer(): Promise<void> {
-  try {
-    const PORT = process.env.PORT || 4000;
+async function startServer(): Promise<void>  {
+    try {
+      const PORT = parseInt(process.env.PORT || '4000', 10);
+
+
     await prisma.$connect();
     console.log("Database Connected");
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on ${PORT}`);
     });
   } catch (error) {
     console.log("Server start error:", error);
