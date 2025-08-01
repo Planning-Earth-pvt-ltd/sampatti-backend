@@ -3,6 +3,9 @@ import { listProperties,listHomeProps,getFilteredProperties } from '../controlle
 
 const router = express.Router();
 
+
+
+
 router.get('/GET_PROPERTY', listProperties);
 router.get('/property_home', listHomeProps);
 router.get('/filter', getFilteredProperties);

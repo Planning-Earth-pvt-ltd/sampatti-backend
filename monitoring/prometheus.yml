@@ -1,0 +1,8 @@
+scrape_configs:
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['share-sampatti-backend:4000']
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['host.docker.internal:9100']  # If Prometheus runs in Docker on Linux
