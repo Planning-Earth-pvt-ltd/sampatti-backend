@@ -158,6 +158,4 @@ model Admin {
   resetToken        String?
   resetTokenExpiry  DateTime?
   isDeleted         Boolean    @default(false)
-
-  @@map("admins")
 }
