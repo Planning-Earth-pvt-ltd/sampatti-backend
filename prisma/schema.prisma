@@ -1,42 +1,63 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// KYC Enum
 enum KYCStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
-// User Schema
-
-model User {
-  id String @id @default(cuid()) @map("userId")
-
-  fullName      String
-  phoneNumber   String    @unique
-  email         String?   @unique
-  kycStatus     KYCStatus @default(PENDING)
-  isKycVerified Boolean   @default(false)
-  createdBy     String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  Token         Token[]
+enum PropertyCategory {
+  Residential
+  Commercial
+  Industrial
+  Land
 }
 
-// TokenSchema 
+enum PropertyStatus {
+  Listed
+  Active
+  Sold
+  Funded
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}
+
+
+model User {
+  id            String         @id @default(cuid()) @map("userId")
+  fullName      String
+  phoneNumber   String         @unique
+  email         String?        @unique
+  isKycVerified Boolean        @default(false)
+  createdBy     String         @default("user")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  kycStatus     KYCStatus      @default(PENDING)
+  isDeleted     Boolean        @default(false)
+
+  Token         Token[]
+  Cart          Cart[]
+  Transaction   Transaction[]
+
+  @@map("users")
+}
 
 model Token {
   id        String   @id @default(cuid())
@@ -44,14 +65,97 @@ model Token {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+  isDeleted Boolean  @default(false)
 
-  // Relation to User model
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  //Indexes for queries
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
   @@map("user_tokens")
+}
+
+model OwnerUser {
+  id          String     @id @default(cuid())
+  name        String
+  phoneNumber String     @unique
+  address     String
+  isDeleted   Boolean    @default(false)
+
+  properties  Property[]
+}
+
+model Property {
+  id               String           @id @default(cuid())
+  title            String
+  description      String
+  address          String
+  city             String
+  state            String
+  propertyCategory PropertyCategory
+  propertyType     String
+  propertySubType  String?
+  images           String[]
+  totalAreaSqft    Float
+  TotalTokens      Int
+  currentValuation Float
+  PricePerSqFt     Float
+  SqFtAreaPerToken Float
+  PricePerToken    Float
+  status           PropertyStatus
+  ownerUserId      String
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  ownerUser        OwnerUser        @relation(fields: [ownerUserId], references: [id])
+  Cart             Cart[]
+  Transaction      Transaction[]
+  isDeleted        Boolean          @default(false)
+
+}
+
+model Cart {
+  id           String   @id @default(cuid())
+  userId       String
+  propertyId   String
+  tokenPrice   Decimal
+  quantity     Int
+  amount       Decimal
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isDeleted    Boolean  @default(false)
+
+  user         User     @relation(fields: [userId], references: [id])
+  property     Property @relation(fields: [propertyId], references: [id])
+}
+
+model Transaction {
+  id                String            @id @default(cuid()) @map("transactionId")
+  userId            String
+  propertyId        String
+  tokenPrice        Decimal
+  quantity          Int
+  amount            Decimal
+  type              TransactionType
+  status            TransactionStatus
+  razorpayOrderId   String?           // Razorpay order ID (generated before payment)
+  razorpayPaymentId String?           // Razorpay payment ID (after successful payment)
+  razorpaySignature String?           // For signature verification
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  isDeleted Boolean @default(false)
+
+  user              User              @relation(fields: [userId], references: [id])
+  property          Property          @relation(fields: [propertyId], references: [id])
+}
+
+model Admin {
+  id                String     @id @default(cuid())
+  email             String     @unique
+  password          String
+  name              String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  isDeleted         Boolean    @default(false)
 }

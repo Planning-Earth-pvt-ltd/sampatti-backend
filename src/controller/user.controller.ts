@@ -3,15 +3,23 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { generateToken } from "../utils/generateToken";
 
-const accountSID = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const serviceSID = process.env.TWILIO_SERVICE_SID;
+const accountSID = process.env.TWILIO_ACCOUNT_SID!;
+const authToken = process.env.TWILIO_AUTH_TOKEN!;
+const serviceSID = process.env.TWILIO_SERVICE_SID!;
 
 const client = twilio(accountSID, authToken);
 
 interface SendOtpRequestBody {
   phoneNumber: string;
   fullName?: string | null;
+  type: "signup" | "login";
+}
+
+interface VerifyOtpRequestBody {
+  phoneNumber: string;
+  OTP: string;
+  fullName?: string;
+  type: "signup" | "login";
 }
 
 export const sendOTP = async (
@@ -19,48 +27,38 @@ export const sendOTP = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { phoneNumber, fullName } = req.body;
+    const { phoneNumber, fullName, type } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: {
-        phoneNumber,
-      },
-    });
-
-    let isExistingUser = false;
-
-    // Checks if the user Exists or not
-
-    if (user) {
-      isExistingUser = true;
-
-      // if user exists and fullname is sent , block signup
-
-      if (fullName != null) {
-        res.status(400).json({
-          message: "User Already Exist, Kindly Login",
-          success: false,
-          isExistingUser: true,
-        });
-        return;
-      }
-    } else {
-      //if user does not exist and fullname not send, block login
-
-      if (fullName == null) {
-        res.status(401).json({
-          message: "User not registered, Kindly SignUp",
-          success: false,
-          isExistingUser: false,
-        });
-        return;
-      }
+    if (!phoneNumber || phoneNumber.trim().length !== 10) {
+      res.status(400).json({
+        message: "Valid phone number is required",
+        success: false,
+      });
+      return;
     }
 
-    // Send OTP using twilio
+    const user = await prisma.user.findUnique({
+      where: { phoneNumber },
+    });
 
-    if (!serviceSID) {
-      throw new Error("Missing TWILIO_SERVICE_SID in environment variables");
+    const isSignup = type === "signup";
+
+    if (isSignup ? user : !user) {
+      res.status(isSignup ? 400 : 404).json({
+        message: isSignup
+          ? "User already exists. Please login."
+          : "User not found. Please sign up first.",
+        success: false,
+      });
+      return;
+    }
+
+    if (isSignup && (!fullName || fullName.trim() === "")) {
+      res.status(400).json({
+        message: "Full name is required for signup",
+        success: false,
+      });
+      return;
     }
 
     await client.verify.v2.services(serviceSID).verifications.create({
@@ -71,10 +69,9 @@ export const sendOTP = async (
     res.status(200).json({
       message: "OTP sent successfully",
       success: true,
-      isExistingUser,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error sending OTP:", error);
     res.status(500).json({
       message: "Failed to send OTP",
       success: false,
@@ -82,21 +79,22 @@ export const sendOTP = async (
   }
 };
 
+
 export const verifyOTP = async (
-  req: Request<SendOtpRequestBody>,
+  req: Request<{}, {}, VerifyOtpRequestBody>,
   res: Response
 ): Promise<void> => {
-  const { phoneNumber, OTP, fullName, isExistingUser } = req.body;
+  const { phoneNumber, OTP, fullName, type } = req.body;
+
   try {
-    const verifiedResponse = await client.verify.v2
-      .services(serviceSID || "")
+    const verification = await client.verify.v2
+      .services(serviceSID)
       .verificationChecks.create({
         to: `+91${phoneNumber}`,
         code: OTP,
       });
 
-    // check OTP is valid
-    if (verifiedResponse.status !== "approved") {
+    if (verification.status !== "approved") {
       res.status(400).json({
         message: "Invalid or expired OTP",
         success: false,
@@ -108,67 +106,60 @@ export const verifyOTP = async (
       where: { phoneNumber },
     });
 
-    let message = "";
-
-    if (isExistingUser) {
+    if (type === "login") {
       if (!user) {
         res.status(404).json({
-          message: "User not found, SignUp",
+          message: "User not found. Please sign up first.",
           success: false,
         });
         return;
       }
-      message = "Login Successfully";
-    } else {
-      // Create new user only if they don't exist (this will handle on frontend also)
+    }
+
+    if (type === "signup") {
       if (user) {
-        // If user is trying to sign up but already exists
         res.status(409).json({
-          message:
-            "Account with this phone number already exists. Please log in.",
+          message: "User already exists. Please login.",
           success: false,
         });
         return;
       }
 
-      // If no existing user, proceed with creation
       if (!fullName || fullName.trim() === "") {
         res.status(400).json({
-          message: "Full name is required for signup",
+          message: "Full name is required for signup.",
           success: false,
         });
         return;
       }
+
       user = await prisma.user.create({
         data: {
           phoneNumber,
           fullName,
         },
       });
-      message = "Account Created Successfully";
     }
 
-    const { accessToken, refreshToken } = await generateToken(user.id);
+    const { accessToken, refreshToken } = await generateToken(user!.id);
 
-    // Sending the response
     res.status(200).json({
-      message: message,
+      message: type === "signup" ? "Account created successfully." : "Login successful.",
       accessToken,
       refreshToken,
       success: true,
       user: {
-        id: user.id,
-        fullName: user.fullName,
-        phoneNumber: user.email,
+        id: user!.id,
+        fullName: user!.fullName,
+        phoneNumber: user!.phoneNumber,
       },
     });
-    return;
   } catch (error) {
-    console.log(error);
+    console.error("OTP verification error:", error);
     res.status(500).json({
-      message: "OTP verification Failed",
+      message: "OTP verification failed.",
       success: false,
     });
-    return;
   }
 };
+

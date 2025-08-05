@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2020",                                  
-    "module": "commonjs",                               
-    "rootDir": "./src",                                  
-    "moduleResolution": "node",                    
-    "outDir": "./dist",                                   
-    "esModuleInterop": true,                             
-    "forceConsistentCasingInFileNames": true,            
-    "strict": true,                                      
-    "skipLibCheck": false                                 
+    "target": "ES2020",
+    "module": "commonjs",                 // ✅ FIXED
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": false,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include":["src/**/*"],
-  "exclude": ["node_modules" , "dist"]
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }
