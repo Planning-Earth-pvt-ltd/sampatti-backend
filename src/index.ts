@@ -47,7 +47,7 @@ app.use(errorHandlerMiddleware);
 
 async function startServer(): Promise<void>  {
     try {
-      const PORT = parseInt(process.env.PORT || '4000', 10);
+      const PORT = parseInt(process.env.PORT || '7000', 10);
 
 
     await prisma.$connect();

@@ -1,5 +1,3 @@
-# Dockerfile for Share Sampatti backend 
-
 FROM node:18
 
 WORKDIR /usr/src/app
@@ -10,7 +8,10 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 4000
+# Generate Prisma client during build
+RUN npx prisma generate
+
+EXPOSE 7000
 
 CMD ["npm", "run", "dev"]
 
